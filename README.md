@@ -25,8 +25,8 @@ Edit [.vermilionrc](https://github.com/argherna/vermilion/blob/master/vermilion-
 
 ### Stop
 
-#. Using [jps](http://docs.oracle.com/javase/7/docs/technotes/tools/share/jps.html), find the PID with the class name `Main`.
-#. Issue a `kill PID`. The vermilion instance should shut down shortly (allowing for certain tasks to complete). To kill the process immediately, issue a `kill -9 PID`. This will force vermilion to shut down, but it will leave any running tasks in an inconsistent state.
+1. Using [jps](http://docs.oracle.com/javase/7/docs/technotes/tools/share/jps.html), find the PID with the class name `Main`.
+1. Issue a `kill PID`. The vermilion instance should shut down shortly (allowing for certain tasks to complete). To kill the process immediately, issue a `kill -9 PID`. This will force vermilion to shut down, but it will leave any running tasks in an inconsistent state.
 
 ## Implementing Tasks
 

@@ -34,8 +34,11 @@
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
         <h3>
-<a name="welcome-to-github-pages" class="anchor" href="#welcome-to-github-pages"><span class="octicon octicon-link"></span></a>Welcome to GitHub Pages.</h3>
+<a name="introduction" class="anchor" href="#introduction"><span class="octicon octicon-link"></span></a>Introduction</h3>
 
+<p>Vermilion is intended to be used as an alternative to cron on unix based systems where separate Java command line programs would be run. This is useful for jobs that are frequently run whose data updates are subject to strict time requirements. Vermilion facilitates quicker execution by having a long-running JVM process with the classes already loaded to execute your task.</p>
+
+<!--
 <p>This automatic page generator is the easiest way to create beautiful pages for all of your projects. Author your page content here using GitHub Flavored Markdown, select a template crafted by a designer, and publish. After your page is generated, you can check out the new branch:</p>
 
 <pre><code>$ cd your_repo_root/repo_name
@@ -44,17 +47,39 @@ $ git checkout gh-pages
 </code></pre>
 
 <p>If you're using the GitHub for Mac, simply sync your repository and you'll see the new branch.</p>
+-->
 
 <h3>
-<a name="designer-templates" class="anchor" href="#designer-templates"><span class="octicon octicon-link"></span></a>Designer Templates</h3>
+<a name="Features" class="anchor" href="#features"><span class="octicon octicon-link"></span></a>Features</h3>
 
+<p>Tasks and Schedules are at the heart of vermilion. A Task is an implementation of a vermilion based interface, <a href="https://github.com/argherna/vermilion/blob/master/vermilion-core/src/main/java/vermilion/core/NamedRunnable.java">NamedRunnable</a>, which is an extension of the familiar Runnable interface. NamedRunnables can be developed quickly and deployed to a jar file on vermilion's classpath where it will be run on its own Schedule.</p>
+
+<p>Vermilion utilizes standard Java technologies at its core:
+<ul>
+  <li>JMX</li>
+  <li>Servlets</li>
+</ul>
+</p>
+
+<p>Vermilion utilizes standard protocols for its extensions:
+<ul>
+  <li>RESTful HTTP API</li>
+  <li>JSON</li>
+</ul>
+</p>
+
+<p>These standards make it easy for users to access information about their vermilion instances using the tools of their choice.</p>
+<!--
 <p>We've crafted some handsome templates for you to use. Go ahead and continue to layouts to browse through them. You can easily go back to edit your page before publishing. After publishing your page, you can revisit the page generator and switch to another theme. Your Page content will be preserved if it remained markdown format.</p>
+-->
+
 
 <h3>
-<a name="rather-drive-stick" class="anchor" href="#rather-drive-stick"><span class="octicon octicon-link"></span></a>Rather Drive Stick?</h3>
+<a name="configuration" class="anchor" href="#configuration"><span class="octicon octicon-link"></span></a>Configuration</h3>
 
+<p>Vermilion minimizes the amount of configuration work you would normally have to do by using sensible defaults. Configuration should be used for exceptional operating conditions.</p>
+<!--
 <p>If you prefer to not use the automatic generator, push a branch named <code>gh-pages</code> to your repository to create a page manually. In addition to supporting regular HTML content, GitHub Pages support Jekyll, a simple, blog aware static site generator written by our own Tom Preston-Werner. Jekyll makes it easy to create site-wide headers and footers without having to copy them across every page. It also offers intelligent blog support and other advanced templating features.</p>
-
 <h3>
 <a name="authors-and-contributors" class="anchor" href="#authors-and-contributors"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
 
@@ -66,6 +91,7 @@ $ git checkout gh-pages
 <p>Having trouble with Pages? Check out the documentation at <a href="http://help.github.com/pages">http://help.github.com/pages</a> or contact <a href="mailto:support@github.com">support@github.com</a> and we’ll help you sort it out.</p>
       </section>
     </div>
+-->
 
     <!-- FOOTER  -->
     <div id="footer_wrap" class="outer">

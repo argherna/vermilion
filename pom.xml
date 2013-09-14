@@ -63,6 +63,11 @@
         <artifactId>javax.json</artifactId>
         <version>${javax.json.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.apache.tomcat</groupId>
+        <artifactId>tomcat-jdbc</artifactId>
+        <version>${tomcat-embed.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 

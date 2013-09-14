@@ -1,5 +1,7 @@
 package vermilion.core;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
@@ -14,6 +16,7 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import vermilion.management.StateTransition;
 
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.AbstractService;
@@ -52,7 +55,7 @@ public class TaskExecutionService extends AbstractService {
     private static final Logger taskExecLogger = Logger
             .getLogger("taskExecutor");
 
-    private final BlockingQueue<Runnable> taskQueue;
+    private final BlockingQueue<NamedRunnable> taskQueue;
 
     private volatile ExecutorService internalExecutor;
 
@@ -108,10 +111,10 @@ public class TaskExecutionService extends AbstractService {
      *            size of the pool of {@linkplain Executor}s.
      */
     @Inject
-    public TaskExecutionService(BlockingQueue<Runnable> taskQueue,
-            int execPoolSize) {
+    public TaskExecutionService(BlockingQueue<NamedRunnable> taskQueue,
+            StateTransition stateTransition, int execPoolSize) {
         super();
-        this.taskQueue = taskQueue;
+        this.taskQueue = checkNotNull(taskQueue, "Task queue is null.");
         taskExecutorService = MoreExecutors.listeningDecorator(Executors
                 .newFixedThreadPool(execPoolSize));
     }
@@ -150,8 +153,10 @@ public class TaskExecutionService extends AbstractService {
     void doRun() {
         while (isRunning()) {
             try {
-                Runnable task = taskQueue.poll(500, TimeUnit.MILLISECONDS);
+                NamedRunnable task = taskQueue.poll(500, TimeUnit.MILLISECONDS);
                 if (task != null) {
+                    
+                    
                     ListenableFuture<?> taskFuture = taskExecutorService
                             .submit(task);
                     taskFuture.addListener(new Runnable() {

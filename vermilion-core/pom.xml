@@ -59,5 +59,9 @@
       <groupId>org.glassfish</groupId>
       <artifactId>javax.json</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.apache.tomcat</groupId>
+      <artifactId>tomcat-jdbc</artifactId>
+    </dependency>
   </dependencies>
 </project>

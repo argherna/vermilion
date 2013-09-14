@@ -1,13 +1,18 @@
 package vermilion.runtime;
 
+import java.lang.reflect.Proxy;
 import java.util.concurrent.BlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import vermilion.core.Listeners;
+import vermilion.core.NamedRunnable;
 import vermilion.core.TaskExecutionService;
 import vermilion.management.JmxService;
+import vermilion.management.LoggingStateTransition;
+import vermilion.management.QueueInvocationHandler;
+import vermilion.management.StateTransition;
 import vermilion.webapi.WebAppServerService;
 
 import com.google.common.collect.Queues;
@@ -24,18 +29,30 @@ public class Main {
     public static void main(String[] args) {
         Thread shutdownHook = null;
         try {
-            final BlockingQueue<Runnable> taskQueue = Queues
+            final BlockingQueue<NamedRunnable> tasks = Queues
                     .newLinkedBlockingQueue();
+            final StateTransition stateTransition = (StateTransition) Proxy
+                    .newProxyInstance(
+                            LoggingStateTransition.class.getClassLoader(),
+                            new Class<?>[] { StateTransition.class },
+                            new LoggingStateTransition());
+            
+            @SuppressWarnings("unchecked")
+            final BlockingQueue<NamedRunnable> taskQueue = (BlockingQueue<NamedRunnable>) Proxy
+                    .newProxyInstance(
+                            QueueInvocationHandler.class.getClassLoader(),
+                            new Class<?>[] { BlockingQueue.class },
+                            new QueueInvocationHandler(tasks, stateTransition));
 
             final String executionServiceName = "Execution Service";
             final TaskExecutionService tes = new TaskExecutionService(
-                    taskQueue, Runtime.getRuntime().availableProcessors());
+                    taskQueue, null, Runtime.getRuntime().availableProcessors());
             tes.addListener(Listeners
                     .createLoggingServiceListener(executionServiceName),
                     MoreExecutors.sameThreadExecutor());
 
             final String jmxServiceName = "Jmx Service";
-            final JmxService jmx = new JmxService(taskQueue);
+            final JmxService jmx = new JmxService(taskQueue, stateTransition);
             jmx.addListener(
                     Listeners.createLoggingServiceListener(jmxServiceName),
                     MoreExecutors.sameThreadExecutor());

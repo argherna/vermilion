@@ -13,6 +13,7 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -24,12 +25,20 @@ import com.google.common.base.Strings;
 import com.google.common.net.HttpHeaders;
 import com.google.common.net.MediaType;
 
+/**
+ * Controls tasks via HTTP requests.
+ * 
+ * 
+ * @author andy
+ * 
+ */
+@WebServlet(name = "TaskControl", urlPatterns = { "/tasks", "/tasks/*" })
 public class TaskControlServlet extends HttpServlet {
 
     /**
-     * 
+     * The serialVersionUID.
      */
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 6788902427551784072L;
 
     /**
      * Handles HTTP GET requests.

@@ -22,6 +22,7 @@ import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 
 import vermilion.core.Listeners;
+import vermilion.core.NamedRunnable;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.AbstractService;
@@ -50,7 +51,9 @@ public class JmxService extends AbstractService {
 
     private final CountDownLatch latch = new CountDownLatch(1);
 
-    private final BlockingQueue<Runnable> taskQueue;
+    private final BlockingQueue<NamedRunnable> taskQueue;
+
+    private final StateTransition stateTransition;
 
     private MBeanServer mbs;
 
@@ -61,11 +64,16 @@ public class JmxService extends AbstractService {
      * 
      * @param taskQueue
      *            the task queue used by the other services.
+     * @param stateTransition
+     *            TODO
      */
     @Inject
-    public JmxService(BlockingQueue<Runnable> taskQueue) {
+    public JmxService(BlockingQueue<NamedRunnable> taskQueue,
+            StateTransition stateTransition) {
         this.taskQueue = taskQueue;
+        this.stateTransition = stateTransition;
         objectInstances = Lists.newArrayList();
+
     }
 
     @Override
@@ -83,7 +91,7 @@ public class JmxService extends AbstractService {
                 try {
                     mbs = ManagementFactory.getPlatformMBeanServer();
                     TaskControllerImpl taskController = new TaskControllerImpl(
-                            TaskController.class, taskQueue);
+                            TaskController.class, taskQueue, stateTransition);
                     ObjectName serviceFactoryBeanName = new ObjectName(
                             TaskController.OBJECT_NAME);
                     objectInstances.add(mbs.registerMBean(taskController,

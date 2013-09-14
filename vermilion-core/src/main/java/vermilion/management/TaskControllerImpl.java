@@ -2,6 +2,7 @@ package vermilion.management;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.util.List;
 import java.util.Properties;
@@ -98,7 +99,9 @@ public class TaskControllerImpl extends StandardMBean implements TaskController 
     private static final Logger logger = Logger
             .getLogger(TaskControllerImpl.class.getSimpleName());
 
-    private final BlockingQueue<Runnable> taskQueue;
+    private final BlockingQueue<NamedRunnable> taskQueue;
+
+    private final StateTransition stateTransition;
 
     private final ConcurrentMap<String, ScheduledQueuingService> services;
 
@@ -120,12 +123,14 @@ public class TaskControllerImpl extends StandardMBean implements TaskController 
      *            the ServiceFactory Interface class.
      * @param taskQueue
      *            shared task queue.
+     * @param stateTransition
+     *            the StateTransition for the tasks.
      * @throws NotCompliantMBeanException
      */
     public TaskControllerImpl(Class<?> mbeanInterface,
-            BlockingQueue<Runnable> taskQueue)
-            throws NotCompliantMBeanException {
-        this(mbeanInterface, false, taskQueue,
+            BlockingQueue<NamedRunnable> taskQueue,
+            StateTransition stateTransition) throws NotCompliantMBeanException {
+        this(mbeanInterface, false, taskQueue, stateTransition,
                 new ConcurrentHashMap<String, ScheduledQueuingService>(), true);
     }
 
@@ -144,10 +149,13 @@ public class TaskControllerImpl extends StandardMBean implements TaskController 
      *            flag indicating if this instance is an MXBean.
      * @param taskQueue
      *            shared task queue.
+     * @param stateTransition
+     *            the StateTransition for the tasks.
      */
     public TaskControllerImpl(Class<?> mbeanInterface, boolean isMXBean,
-            BlockingQueue<Runnable> taskQueue) {
-        this(mbeanInterface, isMXBean, taskQueue,
+            BlockingQueue<NamedRunnable> taskQueue,
+            StateTransition stateTransition) {
+        this(mbeanInterface, isMXBean, taskQueue, stateTransition,
                 new ConcurrentHashMap<String, ScheduledQueuingService>(), true);
     }
 
@@ -166,12 +174,14 @@ public class TaskControllerImpl extends StandardMBean implements TaskController 
      *            the exported management interface.
      * @param taskQueue
      *            shared task queue.
+     * @param stateTransition
+     *            the StateTransition for the tasks.
      * @throws NotCompliantMBeanException
      */
     public <T> TaskControllerImpl(T implementation, Class<T> mbeanInterface,
-            BlockingQueue<Runnable> taskQueue)
-            throws NotCompliantMBeanException {
-        this(implementation, mbeanInterface, true, taskQueue,
+            BlockingQueue<NamedRunnable> taskQueue,
+            StateTransition stateTransition) throws NotCompliantMBeanException {
+        this(implementation, mbeanInterface, true, taskQueue, stateTransition,
                 new ConcurrentHashMap<String, ScheduledQueuingService>(), true);
     }
 
@@ -192,10 +202,14 @@ public class TaskControllerImpl extends StandardMBean implements TaskController 
      *            flag indicating if this instance is an MXBean.
      * @param taskQueue
      *            shared task queue.
+     * @param stateTransition
+     *            the StateTransition for the tasks.
      */
     public <T> TaskControllerImpl(T implementation, Class<T> mbeanInterface,
-            boolean isMXBean, BlockingQueue<Runnable> taskQueue) {
+            boolean isMXBean, BlockingQueue<NamedRunnable> taskQueue,
+            StateTransition stateTransition) {
         this(implementation, mbeanInterface, isMXBean, taskQueue,
+                stateTransition,
                 new ConcurrentHashMap<String, ScheduledQueuingService>(), true);
     }
 
@@ -219,17 +233,21 @@ public class TaskControllerImpl extends StandardMBean implements TaskController 
      *            flag indicating if this instance is an MXBean.
      * @param taskQueue
      *            shared task queue.
+     * @param stateTransition
+     *            the StateTransition for the tasks.
      * @param tasks
      *            pre-populated map of scheduled tasks keyed by a name.
      * @param autoStart
      *            if <code>true</code>, process the configuration file.
      */
     public TaskControllerImpl(Class<?> mbeanInterface, boolean isMXBean,
-            BlockingQueue<Runnable> taskQueue,
+            BlockingQueue<NamedRunnable> taskQueue,
+            StateTransition stateTransition,
             ConcurrentMap<String, ScheduledQueuingService> tasks,
             boolean autoStart) {
         super(mbeanInterface, isMXBean);
         this.taskQueue = taskQueue;
+        this.stateTransition = stateTransition;
         this.services = tasks;
         if (autoStart) {
             autoStart();
@@ -258,18 +276,23 @@ public class TaskControllerImpl extends StandardMBean implements TaskController 
      *            flag indicating if this instance is an MXBean.
      * @param taskQueue
      *            shared task queue.
+     * @param stateTransition
+     *            the StateTransition for the tasks.
      * @param tasks
      *            pre-populated map of scheduled tasks keyed by a name.
      * @param autoStart
      *            if <code>true</code>, process the configuration file.
      */
     public <T> TaskControllerImpl(T implementation, Class<T> mbeanInterface,
-            boolean isMXBean, BlockingQueue<Runnable> taskQueue,
+            boolean isMXBean, BlockingQueue<NamedRunnable> taskQueue,
+            StateTransition stateTransition,
             ConcurrentMap<String, ScheduledQueuingService> tasks,
             boolean autoStart) {
         super(implementation, mbeanInterface, isMXBean);
         this.taskQueue = taskQueue;
+        this.stateTransition = stateTransition;
         this.services = tasks;
+
         if (autoStart) {
             autoStart();
         }
@@ -451,7 +474,11 @@ public class TaskControllerImpl extends StandardMBean implements TaskController 
             Class<NamedRunnable> runnableClass = (Class<NamedRunnable>) Class
                     .forName(classname);
 
-            runnable = runnableClass.newInstance();
+            runnable = (NamedRunnable) Proxy.newProxyInstance(
+                    StateTransition.class.getClassLoader(),
+                    new Class<?>[] { NamedRunnable.class },
+                    new StatefulNamedRunnable(runnableClass.newInstance(),
+                            stateTransition));
         } catch (ClassNotFoundException | InstantiationException
                 | IllegalAccessException e) {
 

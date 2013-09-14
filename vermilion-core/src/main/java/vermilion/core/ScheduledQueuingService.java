@@ -9,7 +9,6 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-
 import com.google.common.util.concurrent.AbstractScheduledService;
 
 /**
@@ -46,7 +45,7 @@ public class ScheduledQueuingService extends AbstractScheduledService {
     private static final Logger schdQueueLogger = Logger
             .getLogger("queueService");
 
-    private final BlockingQueue<Runnable> taskQueue;
+    private final BlockingQueue<NamedRunnable> taskQueue;
 
     private int retryCount = 3;
 
@@ -70,7 +69,7 @@ public class ScheduledQueuingService extends AbstractScheduledService {
      */
     @Inject
     public ScheduledQueuingService(Schedule schedule, NamedRunnable task,
-            BlockingQueue<Runnable> taskQueue) {
+            BlockingQueue<NamedRunnable> taskQueue) {
         super();
         this.schedule = checkNotNull(schedule, "Schedule can't be null.");
         this.task = checkNotNull(task, "Task can't be null.");

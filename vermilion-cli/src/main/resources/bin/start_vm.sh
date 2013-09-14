@@ -53,6 +53,13 @@ fi
 #
 # ------------------------------------------------------------------------------
 
+# vermilion environment variables
+#
+if [ -z "$VERMILION_OUT" ]; then
+  VERMILION_OUT=$dir/logs/vermilion_out_log.txt
+fi
+
+
 # Set the classpath needed by the Java program. This will consist of adding the
 # conf directory (since it is convention for Java programs to load configuration
 # files from the classpath) and the jar files in the lib directory.
@@ -101,4 +108,5 @@ $JAVA_HOME/bin/java \
   ${java_opts} \
   ${sysprops} \
   ${mainclass} \
-  $*
+  $* \
+  >> "$VERMILION_OUT" 2>&1 &
